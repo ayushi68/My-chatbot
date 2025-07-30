@@ -6,44 +6,41 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-const handleQuery = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setAnswer('');
-  setError('');
+  const handleQuery = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setAnswer('');
+    setError('');
 
-  if (!query || query.trim() === '') {
-    setError('Please enter a valid query');
-    setLoading(false);
-    return;
-  }
-
-  try {
-    console.log('Sending request to /api/query with query:', query); // Debug
-    const res = await fetch('/api/query', {
-      method: 'POST', // Ensure POST
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ query }),
-    });
-
-    const data = await res.json();
-    if (!res.ok) {
-      if (data.details) {
-        throw new Error(`Service connectivity issues: ${data.details.join(', ')}`);
-      }
-      throw new Error(data.error || 'Unknown error');
+    if (!query || query.trim() === '') {
+      setError('Please enter a valid query');
+      setLoading(false);
+      return;
     }
 
-    setAnswer(data.answer);
-  } catch (err) {
-    console.error('Query failed:', err.message);
-    setError(err.message);
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      console.log('Sending request to /api/query with query:', query);
+      const res = await fetch('/api/query', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.details || data.error || 'Unknown error');
+      }
+
+      setAnswer(data.answer);
+    } catch (err) {
+      console.error('Query failed:', err.message);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main style={{ maxWidth: 600, margin: '40px auto', padding: '20px' }}>
